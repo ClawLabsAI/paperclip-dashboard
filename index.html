@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paperclip — Company OS</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #080b10;
+  --bg2:      #0d1117;
+  --bg3:      #131920;
+  --bg4:      #1a2230;
+  --border:   #1e2c3a;
+  --border2:  #273748;
+  --accent:   #00f0c0;
+  --accent-d: #00c49a;
+  --blue:     #3b82f6;
+  --purple:   #8b5cf6;
+  --yellow:   #f59e0b;
+  --red:      #ef4444;
+  --green:    #22c55e;
+  --text:     #e2eaf4;
+  --text2:    #7a95b0;
+  --text3:    #3a5068;
+  --card:     #0f1923;
+  --glow:     0 0 30px rgba(0,240,192,0.08);
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Syne', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: 230px; min-width: 230px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  height: 100vh; position: relative; z-index: 10;
+}
+.logo {
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-mark {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, var(--accent), #00a0ff);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 900; color: var(--bg);
+  font-family: var(--sans); letter-spacing: -.05em;
+}
+.logo-text { font-size: 15px; font-weight: 800; letter-spacing: -.02em; }
+.logo-ver { font-size: 9px; color: var(--text3); font-family: var(--mono); margin-top: 1px; }
+
+.co-pill {
+  margin: 10px 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 12px;
+  cursor: pointer; transition: border-color .2s;
+  position: relative;
+}
+.co-pill:hover { border-color: var(--accent); }
+.co-pill-name { font-size: 12px; font-weight: 700; }
+.co-pill-status {
+  font-size: 9px; color: var(--green);
+  font-family: var(--mono); display: flex; align-items: center; gap: 4px; margin-top: 2px;
+}
+.co-pill-setup {
+  position: absolute; top: 6px; right: 8px;
+  font-size: 9px; background: var(--yellow); color: var(--bg);
+  padding: 1px 6px; border-radius: 10px; font-weight: 700; font-family: var(--mono);
+}
+.pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+
+nav { flex: 1; overflow-y: auto; padding: 8px 0; }
+.nav-section {
+  padding: 10px 16px 4px;
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--text3);
+}
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 16px; cursor: pointer; font-size: 12px; font-weight: 600;
+  color: var(--text2); border-left: 2px solid transparent;
+  transition: all .15s; user-select: none;
+}
+.nav-item:hover { color: var(--text); background: rgba(255,255,255,.03); }
+.nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(0,240,192,.04); }
+.nav-item .ni { font-size: 13px; width: 16px; text-align: center; opacity: .8; }
+.nav-badge {
+  margin-left: auto; font-size: 9px; font-family: var(--mono);
+  padding: 1px 5px; border-radius: 8px;
+}
+.nb-red { background: rgba(239,68,68,.15); color: var(--red); }
+.nb-blue { background: rgba(59,130,246,.15); color: var(--blue); }
+.nb-green { background: rgba(34,197,94,.15); color: var(--green); }
+.nb-yellow { background: rgba(245,158,11,.15); color: var(--yellow); }
+.nb-accent { background: rgba(0,240,192,.12); color: var(--accent); animation: pulse-badge 2s infinite; }
+@keyframes pulse-badge { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+.sidebar-foot {
+  padding: 12px; border-top: 1px solid var(--border);
+}
+.spend-row { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+.spend-val { font-family: var(--mono); color: var(--text2); }
+.bar-track { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--blue)); border-radius: 2px; transition: width .8s; }
+.ver-tag { font-size: 9px; color: var(--text3); font-family: var(--mono); margin-top: 8px; }
+
+/* ─── MAIN ─── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; height: 100vh; }
+
+.topbar {
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  height: 50px; padding: 0 22px;
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+.tb-title { font-size: 14px; font-weight: 800; letter-spacing: -.02em; flex: 1; }
+.tb-sub { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+.btn {
+  padding: 6px 14px; border-radius: 7px; font-size: 11px; font-weight: 700;
+  cursor: pointer; border: none; font-family: var(--sans); transition: all .15s; letter-spacing: .02em;
+}
+.btn-accent { background: var(--accent); color: var(--bg); }
+.btn-accent:hover { background: var(--accent-d); }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { color: var(--text); border-color: var(--text3); }
+.btn-blue { background: rgba(59,130,246,.15); color: var(--blue); border: 1px solid rgba(59,130,246,.3); }
+.btn-blue:hover { background: rgba(59,130,246,.25); }
+.btn-red { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.3); }
+
+.ticker-wrap {
+  height: 26px; background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden; flex-shrink: 0; display: flex; align-items: center;
+}
+.ticker { display: flex; gap: 40px; white-space: nowrap; animation: scroll-ticker 35s linear infinite; }
+@keyframes scroll-ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.tick { font-size: 10px; font-family: var(--mono); color: var(--text3); display: flex; align-items: center; gap: 6px; }
+.tc { color: var(--accent); } .tr { color: var(--red); } .ty { color: var(--yellow); } .tg { color: var(--green); }
+
+.content { flex: 1; overflow-y: auto; padding: 20px 22px; }
+
+/* ─── VIEWS ─── */
+.view { display: none; }
+.view.active { display: block; animation: fadein .2s ease; }
+@keyframes fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+/* ─── KPI GRID ─── */
+.kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
+.kpi {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 15px 16px; position: relative; overflow: hidden;
+}
+.kpi::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--c, var(--accent));
+}
+.kpi-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); margin-bottom: 8px; font-weight: 700; }
+.kpi-val { font-size: 26px; font-weight: 800; font-family: var(--mono); line-height: 1; }
+.kpi-delta { font-size: 10px; margin-top: 5px; font-family: var(--mono); }
+.up { color: var(--green); } .dn { color: var(--red); }
+
+/* ─── PANEL ─── */
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.ph { padding: 11px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.ph-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; flex: 1; }
+.pb { padding: 14px 16px; }
+
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.g32 { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 12px; }
+
+/* ─── AGENT ROW ─── */
+.arow {
+  display: flex; align-items: center; gap: 11px;
+  padding: 9px 0; border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.arow:last-child { border-bottom: none; }
+.avtr { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.aname { font-size: 12px; font-weight: 700; }
+.arole { font-size: 9px; color: var(--text3); font-family: var(--mono); }
+.astatus {
+  font-size: 9px; padding: 2px 7px; border-radius: 8px;
+  font-family: var(--mono); font-weight: 600; white-space: nowrap;
+}
+.s-run { background: rgba(34,197,94,.12); color: var(--green); }
+.s-idle { background: rgba(58,80,104,.25); color: var(--text3); }
+.s-wait { background: rgba(245,158,11,.1); color: var(--yellow); }
+.s-err { background: rgba(239,68,68,.1); color: var(--red); }
+
+/* ─── FEED ─── */
+.fitem { display: flex; gap: 9px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+.fitem:last-child { border-bottom: none; }
+.ficon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.fmsg { color: var(--text2); line-height: 1.5; }
+.fmsg strong { color: var(--text); }
+.ftime { font-size: 9px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
+
+/* ─── KANBAN ─── */
+.kanban { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.kcol { background: var(--bg3); border: 1px solid var(--border); border-radius: 9px; padding: 10px; min-height: 200px; }
+.kcol-head { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.kcol-count { background: var(--bg4); color: var(--text3); padding: 1px 5px; border-radius: 6px; font-size: 9px; font-family: var(--mono); }
+.kcard {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 7px; padding: 9px 11px; margin-bottom: 7px;
+  cursor: pointer; transition: border-color .15s, transform .1s;
+}
+.kcard:hover { border-color: var(--border2); transform: translateY(-1px); }
+.kcard-title { font-size: 11px; font-weight: 600; line-height: 1.4; margin-bottom: 6px; }
+.kcard-meta { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.tag { font-size: 9px; padding: 1px 6px; border-radius: 4px; font-family: var(--mono); font-weight: 700; }
+.t-eng { background: rgba(0,240,192,.1); color: var(--accent); }
+.t-mkt { background: rgba(139,92,246,.12); color: var(--purple); }
+.t-ops { background: rgba(34,197,94,.1); color: var(--green); }
+.t-des { background: rgba(245,158,11,.1); color: var(--yellow); }
+.kagent { font-size: 9px; color: var(--text3); margin-left: auto; font-family: var(--mono); }
+
+/* ─── ORG ─── */
+.org-scroll { overflow-x: auto; padding-bottom: 8px; }
+.org-tree { display: flex; flex-direction: column; align-items: center; min-width: 720px; }
+.org-lvl { display: flex; justify-content: center; gap: 16px; padding: 6px 0; }
+.org-line { width: 1px; height: 18px; background: var(--border2); margin: 0 auto; }
+.ocard {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px; text-align: center;
+  min-width: 128px; cursor: pointer; transition: border-color .2s, transform .2s;
+  position: relative;
+}
+.ocard:hover { border-color: var(--accent); transform: translateY(-2px); }
+.ocard.ceo { border-color: rgba(0,240,192,.4); box-shadow: var(--glow); }
+.oavt { width: 38px; height: 38px; border-radius: 9px; margin: 0 auto 7px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.oname { font-size: 11px; font-weight: 800; }
+.orole { font-size: 9px; color: var(--text3); font-family: var(--mono); margin-top: 1px; }
+.obadge { position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--bg2); }
+
+/* ─── GOALS ─── */
+.goal-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.goal-item:last-child { border-bottom: none; }
+.goal-title { font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+.goal-desc { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+.prog-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.prog-label { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+.prog-pct { font-size: 11px; font-family: var(--mono); color: var(--text2); }
+.prog-track { height: 5px; background: var(--bg4); border-radius: 3px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--purple), var(--accent)); }
+
+/* ─── BUDGET ─── */
+.brow { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.bname { font-size: 11px; flex: 1; }
+.bamt { font-size: 10px; font-family: var(--mono); color: var(--text2); min-width: 80px; text-align: right; }
+.prog2 { height: 3px; background: var(--bg4); border-radius: 2px; overflow: hidden; margin-top: 2px; }
+.p-green { background: var(--green); }
+.p-blue { background: var(--blue); }
+.p-yellow { background: var(--yellow); }
+.p-red { background: var(--red); }
+.p-accent { background: var(--accent); }
+
+/* ─── AUDIT LOG ─── */
+.logline {
+  font-family: var(--mono); font-size: 10px;
+  padding: 3px 0; display: flex; gap: 10px; border-bottom: 1px solid rgba(30,44,58,.4);
+}
+.logline:last-child { border-bottom: none; }
+.l-ts { color: var(--text3); min-width: 75px; }
+.l-src { min-width: 85px; color: var(--purple); }
+.l-msg { color: var(--text2); }
+.logline.success .l-msg { color: var(--green); }
+.logline.warn .l-msg { color: var(--yellow); }
+.logline.error .l-msg { color: var(--red); }
+.logline.info .l-msg { color: var(--text2); }
+
+/* ─── CEO CHAT ─── */
+.chat-area { display: flex; flex-direction: column; height: calc(100vh - 132px); }
+.chat-msgs { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 4px 0 8px; }
+.cmsg { display: flex; gap: 8px; }
+.cmsg.user { flex-direction: row-reverse; }
+.cbubble {
+  max-width: 74%; padding: 9px 13px;
+  border-radius: 10px; font-size: 12px; line-height: 1.55;
+}
+.cmsg.ai .cbubble { background: var(--bg3); border: 1px solid var(--border); }
+.cmsg.user .cbubble { background: var(--purple); color: #fff; }
+.cavt { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+.chat-foot { display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border); }
+.chat-inp {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 9px 13px; color: var(--text);
+  font-family: var(--sans); font-size: 12px; outline: none; resize: none;
+  transition: border-color .2s;
+}
+.chat-inp:focus { border-color: var(--accent); }
+.typing { display: flex; align-items: center; gap: 3px; }
+.typing span { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: tdot 1.1s infinite; }
+.typing span:nth-child(2) { animation-delay: .18s; }
+.typing span:nth-child(3) { animation-delay: .36s; }
+@keyframes tdot { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+/* ─── SETUP WIZARD ─────────────────────────────────── */
+.setup-layout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; height: calc(100vh - 132px); }
+
+/* Steps sidebar */
+.steps-sidebar { display: flex; flex-direction: column; gap: 0; }
+.step-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 14px; cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all .15s; position: relative;
+}
+.step-item:not(:last-child)::after {
+  content: ''; position: absolute; left: 22px; bottom: 0; width: 1px;
+  height: 0; background: var(--border2); transform: translateY(100%);
+  z-index: 1;
+}
+.step-item.done { border-left-color: var(--green); }
+.step-item.active { border-left-color: var(--accent); background: rgba(0,240,192,.04); }
+.step-item.locked { opacity: .4; cursor: not-allowed; }
+
+.step-circle {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-family: var(--mono); font-weight: 700;
+  transition: all .2s;
+}
+.step-item.done .step-circle { border-color: var(--green); background: rgba(34,197,94,.12); color: var(--green); }
+.step-item.active .step-circle { border-color: var(--accent); background: rgba(0,240,192,.1); color: var(--accent); animation: step-pulse 2s infinite; }
+@keyframes step-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(0,240,192,.3)} 50%{box-shadow:0 0 0 6px rgba(0,240,192,0)} }
+.step-text { flex: 1; }
+.step-title { font-size: 12px; font-weight: 700; }
+.step-sub { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
+
+/* Main setup panel */
+.setup-main { display: flex; flex-direction: column; overflow: hidden; }
+.setup-step { display: none; flex-direction: column; gap: 12px; height: 100%; }
+.setup-step.active { display: flex; }
+
+/* Terminal */
+.terminal {
+  background: #030609; border: 1px solid var(--border2);
+  border-radius: 10px; overflow: hidden; flex: 1; display: flex; flex-direction: column;
+}
+.term-bar {
+  background: var(--bg3); padding: 8px 14px;
+  display: flex; align-items: center; gap: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.term-dot { width: 10px; height: 10px; border-radius: 50%; }
+.term-title { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-left: 6px; flex: 1; text-align: center; }
+.term-body { flex: 1; padding: 14px 16px; overflow-y: auto; font-family: var(--mono); font-size: 11px; line-height: 1.7; }
+.t-line { display: block; white-space: pre-wrap; word-break: break-all; }
+.t-prompt { color: var(--accent); }
+.t-cmd { color: var(--text); }
+.t-out { color: var(--text3); }
+.t-ok { color: var(--green); }
+.t-warn { color: var(--yellow); }
+.t-err { color: var(--red); }
+.t-info { color: var(--blue); }
+.t-hl { color: var(--accent); font-weight: 600; }
+.cursor { display: inline-block; width: 7px; height: 13px; background: var(--accent); animation: blink .8s infinite; vertical-align: text-bottom; margin-left: 2px; }
+@keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+
+/* Copy command box */
+.cmd-box {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.cmd-text { font-family: var(--mono); font-size: 13px; color: var(--accent); flex: 1; }
+.cmd-copy { font-size: 10px; }
+
+/* Setup form */
+.setup-form { display: flex; flex-direction: column; gap: 14px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); }
+.field input, .field select, .field textarea {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 7px; padding: 8px 12px; color: var(--text);
+  font-family: var(--sans); font-size: 12px; outline: none;
+  transition: border-color .2s;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+.field select option { background: var(--bg3); }
+
+/* Agent builder card */
+.agent-build-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.agent-build-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 9px; padding: 12px; cursor: pointer;
+  transition: border-color .2s, transform .15s;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.agent-build-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.agent-build-card.selected { border-color: var(--accent); background: rgba(0,240,192,.05); }
+.abc-emoji { font-size: 22px; }
+.abc-name { font-size: 12px; font-weight: 700; }
+.abc-role { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+.abc-model { font-size: 9px; color: var(--accent); font-family: var(--mono); margin-top: 2px; }
+.abc-check { display: none; font-size: 14px; color: var(--accent); position: absolute; top: 8px; right: 10px; }
+.agent-build-card.selected .abc-check { display: block; }
+.agent-build-card { position: relative; }
+
+/* Requirements check */
+.req-list { display: flex; flex-direction: column; gap: 8px; }
+.req-item {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px; font-size: 12px;
+}
+.req-icon { font-size: 16px; }
+.req-info { flex: 1; }
+.req-name { font-weight: 700; }
+.req-detail { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+.req-status { font-size: 10px; font-family: var(--mono); }
+
+/* Heartbeat visualizer */
+.hb-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.hb-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 9px; padding: 12px; display: flex; align-items: center; gap: 10px;
+}
+.hb-avatar { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.hb-info { flex: 1; }
+.hb-name { font-size: 12px; font-weight: 700; }
+.hb-next { font-size: 9px; color: var(--text3); font-family: var(--mono); }
+.hb-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.hb-dot.on { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 1.5s infinite; }
+.hb-dot.off { background: var(--border2); }
+
+/* Setup progress bar */
+.wizard-foot {
+  display: flex; align-items: center; gap: 10px;
+  padding-top: 10px; border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.wf-steps { font-size: 10px; font-family: var(--mono); color: var(--text3); }
+.wf-bar { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.wf-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--blue)); border-radius: 2px; transition: width .4s; }
+
+/* ─── PROJECT CARDS ─── */
+.proj-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.pcard {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden; cursor: pointer; transition: border-color .2s;
+}
+.pcard:hover { border-color: var(--border2); }
+.pcard-top { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+.pcard-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.pcard-desc { font-size: 11px; color: var(--text3); }
+.pcard-foot { padding: 10px 14px; display: flex; align-items: center; gap: 8px; }
+.pcard-prog { font-size: 10px; font-family: var(--mono); color: var(--text2); margin-left: auto; }
+
+/* ─── MISC ─── */
+.sec-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+.sec-title { font-size: 20px; font-weight: 800; letter-spacing: -.03em; }
+.sec-sub { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-top: 3px; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 9px; padding: 2px 7px; border-radius: 20px;
+  font-family: var(--mono); font-weight: 600;
+}
+.chip-accent { background: rgba(0,240,192,.1); color: var(--accent); }
+.chip-green { background: rgba(34,197,94,.1); color: var(--green); }
+.chip-red { background: rgba(239,68,68,.1); color: var(--red); }
+.chip-yellow { background: rgba(245,158,11,.1); color: var(--yellow); }
+.chip-purple { background: rgba(139,92,246,.1); color: var(--purple); }
+.chip-blue { background: rgba(59,130,246,.1); color: var(--blue); }
+
+/* Modal */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
+  z-index: 200; display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 14px; padding: 22px; width: 460px; max-width: 95vw;
+  max-height: 88vh; overflow-y: auto;
+  transform: translateY(16px); transition: transform .2s;
+}
+.overlay.open .modal { transform: translateY(0); }
+.mhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.mtitle { font-size: 15px; font-weight: 800; }
+.mclose { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 16px; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 18px; right: 18px; z-index: 300;
+  background: var(--bg3); border: 1px solid var(--border2);
+  padding: 11px 16px; border-radius: 9px; font-size: 11px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.5);
+  transform: translateY(50px); opacity: 0; transition: all .3s; max-width: 260px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.t-title { font-weight: 700; margin-bottom: 2px; }
+.t-msg { color: var(--text2); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Mini bar chart */
+.chart-bars { display: flex; align-items: flex-end; gap: 3px; height: 80px; }
+.chart-bar { flex: 1; border-radius: 2px 2px 0 0; transition: height .5s; min-width: 4px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">📎</div>
+    <div>
+      <div class="logo-text">Paperclip</div>
+      <div class="logo-ver">company-os · v2026.318</div>
+    </div>
+  </div>
+
+  <div class="co-pill" onclick="nav('setup')">
+    <div class="co-pill-setup">SETUP</div>
+    <div class="co-pill-name">🚀 Mi Empresa</div>
+    <div class="co-pill-status"><span class="pulse"></span> Configurando…</div>
+  </div>
+
+  <nav>
+    <div class="nav-section">Configuración</div>
+    <div class="nav-item active" data-view="setup" onclick="nav('setup')">
+      <span class="ni">⚡</span> Quickstart
+      <span class="nav-badge nb-accent">NUEVO</span>
+    </div>
+
+    <div class="nav-section">Empresa</div>
+    <div class="nav-item" data-view="dashboard" onclick="nav('dashboard')">
+      <span class="ni">⊞</span> Dashboard
+    </div>
+    <div class="nav-item" data-view="projects" onclick="nav('projects')">
+      <span class="ni">◫</span> Proyectos
+      <span class="nav-badge nb-blue" id="nb-proj">6</span>
+    </div>
+    <div class="nav-item" data-view="tasks" onclick="nav('tasks')">
+      <span class="ni">✦</span> Tareas
+      <span class="nav-badge nb-red" id="nb-tasks">5</span>
+    </div>
+    <div class="nav-item" data-view="orgchart" onclick="nav('orgchart')">
+      <span class="ni">◉</span> Org Chart
+    </div>
+    <div class="nav-item" data-view="agents" onclick="nav('agents')">
+      <span class="ni">⬡</span> Agentes
+    </div>
+    <div class="nav-item" data-view="goals" onclick="nav('goals')">
+      <span class="ni">◎</span> Objetivos
+    </div>
+
+    <div class="nav-section">Control</div>
+    <div class="nav-item" data-view="budget" onclick="nav('budget')">
+      <span class="ni">◈</span> Presupuesto
+    </div>
+    <div class="nav-item" data-view="logs" onclick="nav('logs')">
+      <span class="ni">▤</span> Audit Log
+    </div>
+    <div class="nav-item" data-view="ceo" onclick="nav('ceo')">
+      <span class="ni">◆</span> CEO — IA
+    </div>
+  </nav>
+
+  <div class="sidebar-foot">
+    <div class="spend-row">
+      <span>Gasto mensual</span>
+      <span class="spend-val" id="spend-val">$0 / $500</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill" id="spend-bar" style="width:0%"></div></div>
+    <div class="ver-tag">📎 Open source · MIT license</div>
+  </div>
+</aside>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div class="main">
+  <div class="ticker-wrap">
+    <div class="ticker" id="ticker-inner">
+      <span class="tick">PAPERCLIP <span class="tc">v2026.318.0</span></span>
+      <span class="tick">NODE.JS <span class="tc">≥ 20</span> requerido</span>
+      <span class="tick">PNPM <span class="tc">≥ 9.15</span> requerido</span>
+      <span class="tick">QUICKSTART <span class="ty">paso 1 de 5</span></span>
+      <span class="tick">API <span class="tc">localhost:3100</span></span>
+      <span class="tick">DB <span class="tg">PostgreSQL embedded</span> · autosetup</span>
+      <span class="tick">AGENTES <span class="tc">Claude · OpenClaw · Codex · Cursor</span></span>
+      <span class="tick">MULTI-COMPANY <span class="tg">soportado</span></span>
+      <span class="tick">PAPERCLIP <span class="tc">v2026.318.0</span></span>
+      <span class="tick">NODE.JS <span class="tc">≥ 20</span> requerido</span>
+      <span class="tick">PNPM <span class="tc">≥ 9.15</span> requerido</span>
+      <span class="tick">QUICKSTART <span class="ty">paso 1 de 5</span></span>
+      <span class="tick">API <span class="tc">localhost:3100</span></span>
+      <span class="tick">DB <span class="tg">PostgreSQL embedded</span> · autosetup</span>
+      <span class="tick">AGENTES <span class="tc">Claude · OpenClaw · Codex · Cursor</span></span>
+      <span class="tick">MULTI-COMPANY <span class="tg">soportado</span></span>
+    </div>
+  </div>
+
+  <div class="topbar">
+    <div>
+      <div class="tb-title" id="tb-title">⚡ Quickstart</div>
+      <div class="tb-sub" id="tb-sub">Configura Paperclip y lanza tu empresa autónoma</div>
+    </div>
+    <button class="btn btn-ghost" onclick="openModal('newTask')">+ Tarea</button>
+    <button class="btn btn-accent" onclick="openModal('newAgent')">+ Contratar Agente</button>
+  </div>
+
+  <div class="content">
+
+    <!-- ══════════ SETUP WIZARD ══════════ -->
+    <div class="view active" id="view-setup">
+      <div class="setup-layout">
+
+        <!-- Steps sidebar -->
+        <div class="panel steps-sidebar" style="padding:8px 0; height: fit-content;">
+          <div style="padding:10px 14px 6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text3); border-bottom:1px solid var(--border); margin-bottom:4px;">
+            Configuración Paperclip
+          </div>
+          <div class="step-item active" id="si-0" onclick="goStep(0)">
+            <div class="step-circle" id="sc-0">1</div>
+            <div class="step-text">
+              <div class="step-title">Requisitos</div>
+              <div class="step-sub">Node.js 20+ · pnpm 9.15+</div>
+            </div>
+          </div>
+          <div class="step-item locked" id="si-1" onclick="goStep(1)">
+            <div class="step-circle" id="sc-1">2</div>
+            <div class="step-text">
+              <div class="step-title">Instalación</div>
+              <div class="step-sub">npx onboard --yes</div>
+            </div>
+          </div>
+          <div class="step-item locked" id="si-2" onclick="goStep(2)">
+            <div class="step-circle" id="sc-2">3</div>
+            <div class="step-text">
+              <div class="step-title">Tu Empresa</div>
+              <div class="step-sub">Nombre · misión · sector</div>
+            </div>
+          </div>
+          <div class="step-item locked" id="si-3" onclick="goStep(3)">
+            <div class="step-circle" id="sc-3">4</div>
+            <div class="step-text">
+              <div class="step-title">Contratar Equipo</div>
+              <div class="step-sub">CEO · CTO · MKT y más</div>
+            </div>
+          </div>
+          <div class="step-item locked" id="si-4" onclick="goStep(4)">
+            <div class="step-circle" id="sc-4">5</div>
+            <div class="step-text">
+              <div class="step-title">¡Lanzar!</div>
+              <div class="step-sub">Activar heartbeats · go</div>
+            </div>
+          </div>
+
+          <div style="padding:12px 14px; border-top:1px solid var(--border); margin-top:4px;">
+            <div style="font-size:10px; color:var(--text3); margin-bottom:6px; font-family:var(--mono);">Progreso de setup</div>
+            <div class="bar-track"><div class="bar-fill" id="setup-prog-bar" style="width:10%"></div></div>
+            <div style="font-size:9px; color:var(--text3); font-family:var(--mono); margin-top:4px;" id="setup-prog-txt">Paso 1 de 5</div>
+          </div>
+        </div>
+
+        <!-- Main step content -->
+        <div class="setup-main">
+
+          <!-- STEP 0: Requirements -->
+          <div class="setup-step active" id="step-0">
+            <div class="panel" style="flex-shrink:0; padding:16px 18px;">
+              <div style="font-size:16px; font-weight:800; margin-bottom:4px;">Verificar Requisitos</div>
+              <div style="font-size:11px; color:var(--text3);">Asegúrate de tener instalados los siguientes componentes antes de continuar.</div>
+            </div>
+
+            <div class="req-list">
+              <div class="req-item" id="req-node">
+                <div class="req-icon">⬡</div>
+                <div class="req-info">
+                  <div class="req-name">Node.js</div>
+                  <div class="req-detail">Versión mínima requerida: <strong>v20.0.0</strong></div>
+                </div>
+                <div class="req-status" id="rs-node" style="color:var(--yellow)">Verificando…</div>
+                <div class="chip chip-yellow" id="rc-node">CHECK</div>
+              </div>
+              <div class="req-item" id="req-pnpm">
+                <div class="req-icon">📦</div>
+                <div class="req-info">
+                  <div class="req-name">pnpm</div>
+                  <div class="req-detail">Versión mínima requerida: <strong>v9.15.0</strong></div>
+                </div>
+                <div class="req-status" id="rs-pnpm" style="color:var(--yellow)">Verificando…</div>
+                <div class="chip chip-yellow" id="rc-pnpm">CHECK</div>
+              </div>
+              <div class="req-item" id="req-git">
+                <div class="req-icon">🐙</div>
+                <div class="req-info">
+                  <div class="req-name">Git</div>
+                  <div class="req-detail">Para clonar el repositorio de Paperclip</div>
+                </div>
+                <div class="req-status" id="rs-git" style="color:var(--yellow)">Verificando…</div>
+                <div class="chip chip-yellow" id="rc-git">CHECK</div>
+              </div>
+              <div class="req-item" id="req-api">
+                <div class="req-icon">🔑</div>
+                <div class="req-info">
+                  <div class="req-name">API Key (Anthropic / OpenAI)</div>
+                  <div class="req-detail">Necesaria para los agentes IA. Al menos una requerida.</div>
+                </div>
+                <div class="req-status" id="rs-api" style="color:var(--yellow)">Verificando…</div>
+                <div class="chip chip-yellow" id="rc-api">CHECK</div>
+              </div>
+              <div class="req-item">
+                <div class="req-icon">💾</div>
+                <div class="req-info">
+                  <div class="req-name">PostgreSQL (opcional)</div>
+                  <div class="req-detail">Paperclip incluye <strong>PostgreSQL embebido</strong> · no setup requerido</div>
+                </div>
+                <div class="req-status" style="color:var(--green)">Incluido ✓</div>
+                <div class="chip chip-green">OK</div>
+              </div>
+            </div>
+
+            <div class="terminal" style="flex:1; min-height:140px;">
+              <div class="term-bar">
+                <div class="term-dot" style="background:#ff5f57"></div>
+                <div class="term-dot" style="background:#ffbd2e"></div>
+                <div class="term-dot" style="background:#28ca41"></div>
+                <div class="term-title">bash — verificación de requisitos</div>
+              </div>
+              <div class="term-body" id="term-req">
+                <span class="t-line t-out">Verificando entorno del sistema…</span>
+              </div>
+            </div>
+
+            <div class="wizard-foot">
+              <span class="wf-steps">Paso 1 / 5</span>
+              <div class="wf-bar"><div class="wf-fill" style="width:20%"></div></div>
+              <button class="btn btn-accent" onclick="completeStep(0)">Continuar →</button>
+            </div>
+          </div>
+
+          <!-- STEP 1: Installation -->
+          <div class="setup-step" id="step-1">
+            <div class="panel" style="flex-shrink:0; padding:16px 18px;">
+              <div style="font-size:16px; font-weight:800; margin-bottom:4px;">Instalar Paperclip</div>
+              <div style="font-size:11px; color:var(--text3);">Un solo comando instala y configura todo: servidor API, base de datos embebida y primera empresa.</div>
+            </div>
+
+            <div class="panel" style="padding:16px 18px; flex-shrink:0;">
+              <div style="font-size:12px; font-weight:700; margin-bottom:10px; color:var(--accent);">Opción A — Quickstart (recomendado)</div>
+              <div class="cmd-box">
+                <span class="cmd-text">npx paperclipai onboard --yes</span>
+                <button class="btn btn-ghost cmd-copy" onclick="copyCmd('npx paperclipai onboard --yes')">📋 Copiar</button>
+              </div>
+              <div style="font-size:10px; color:var(--text3); margin-top:8px; font-family:var(--mono);">
+                ↳ Instala deps · configura DB embebida · inicia servidor en <span style="color:var(--accent)">http://localhost:3100</span>
+              </div>
+            </div>
+
+            <div class="panel" style="padding:14px 18px; flex-shrink:0;">
+              <div style="font-size:12px; font-weight:700; margin-bottom:10px; color:var(--text2);">Opción B — Instalación manual</div>
+              <div class="cmd-box" style="margin-bottom:7px;">
+                <span class="cmd-text" style="font-size:11px;">git clone https://github.com/paperclipai/paperclip.git</span>
+                <button class="btn btn-ghost cmd-copy" onclick="copyCmd('git clone https://github.com/paperclipai/paperclip.git')">📋</button>
+              </div>
+              <div class="cmd-box" style="margin-bottom:7px;">
+                <span class="cmd-text" style="font-size:11px;">cd paperclip && pnpm install</span>
+                <button class="btn btn-ghost cmd-copy" onclick="copyCmd('cd paperclip && pnpm install')">📋</button>
+              </div>
+              <div class="cmd-box">
+                <span class="cmd-text" style="font-size:11px;">pnpm dev</span>
+                <button class="btn btn-ghost cmd-copy" onclick="copyCmd('pnpm dev')">📋</button>
+              </div>
+            </div>
+
+            <div class="terminal" style="flex:1; min-height:150px;">
+              <div class="term-bar">
+                <div class="term-dot" style="background:#ff5f57"></div>
+                <div class="term-dot" style="background:#ffbd2e"></div>
+                <div class="term-dot" style="background:#28ca41"></div>
+                <div class="term-title">bash — paperclip installation</div>
+                <button class="btn btn-ghost" style="font-size:9px;padding:2px 8px;margin-left:auto" onclick="runInstallSim()">▶ Simular instalación</button>
+              </div>
+              <div class="term-body" id="term-install">
+                <span class="t-line t-out"># Pulsa "Simular instalación" para ver el proceso</span>
+                <span class="t-line t-prompt">$ <span class="cursor"></span></span>
+              </div>
+            </div>
+
+            <div class="wizard-foot">
+              <span class="wf-steps">Paso 2 / 5</span>
+              <div class="wf-bar"><div class="wf-fill" style="width:40%"></div></div>
+              <button class="btn btn-ghost" onclick="goStep(0)">← Atrás</button>
+              <button class="btn btn-accent" onclick="completeStep(1)">Continuar →</button>
+            </div>
+          </div>
+
+          <!-- STEP 2: Company setup -->
+          <div class="setup-step" id="step-2">
+            <div class="panel" style="flex-shrink:0; padding:16px 18px;">
+              <div style="font-size:16px; font-weight:800; margin-bottom:4px;">Configurar tu Empresa</div>
+              <div style="font-size:11px; color:var(--text3);">Define la identidad de tu empresa. Los agentes usarán esta información para alinear cada tarea con tu misión.</div>
+            </div>
+
+            <div class="panel" style="padding:16px 18px; flex:1; overflow-y:auto;">
+              <div class="setup-form">
+                <div class="form-row">
+                  <div class="field">
+                    <label>Nombre de la empresa</label>
+                    <input id="co-name" placeholder="Ej: NexaAI Corp" value="NexaAI Corp">
+                  </div>
+                  <div class="field">
+                    <label>Sector / Industria</label>
+                    <select id="co-sector">
+                      <option>SaaS / Software IA</option>
+                      <option>E-commerce</option>
+                      <option>Marketing Digital</option>
+                      <option>Fintech</option>
+                      <option>Media / Contenidos</option>
+                      <option>Otro</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Misión principal (el "por qué")</label>
+                  <input id="co-mission" placeholder="Ej: Construir la plataforma #1 de IA para empresas autónomas" value="Construir la plataforma #1 de IA para empresas autónomas">
+                </div>
+                <div class="field">
+                  <label>Objetivo norte (OKR principal)</label>
+                  <input id="co-goal" placeholder="Ej: Llegar a $1M MRR antes de Q4 2026" value="Alcanzar $1M MRR antes de Q4 2026">
+                </div>
+                <div class="form-row">
+                  <div class="field">
+                    <label>Presupuesto mensual total ($)</label>
+                    <input id="co-budget" type="number" value="500" min="50" max="10000">
+                  </div>
+                  <div class="field">
+                    <label>Zona horaria</label>
+                    <select id="co-tz">
+                      <option>Europe/Madrid</option>
+                      <option>America/New_York</option>
+                      <option>America/Los_Angeles</option>
+                      <option>UTC</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Descripción del producto / servicio</label>
+                  <textarea id="co-desc" rows="3" placeholder="Describe brevemente qué hace tu empresa…">Plataforma SaaS que orquesta agentes IA en estructura empresarial con org chart, presupuestos y gobernanza.</textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="wizard-foot">
+              <span class="wf-steps">Paso 3 / 5</span>
+              <div class="wf-bar"><div class="wf-fill" style="width:60%"></div></div>
+              <button class="btn btn-ghost" onclick="goStep(1)">← Atrás</button>
+              <button class="btn btn-accent" onclick="completeStep(2)">Crear Empresa →</button>
+            </div>
+          </div>
+
+          <!-- STEP 3: Hire team -->
+          <div class="setup-step" id="step-3">
+            <div class="panel" style="flex-shrink:0; padding:16px 18px;">
+              <div style="font-size:16px; font-weight:800; margin-bottom:4px;">Contratar tu Equipo de Agentes</div>
+              <div style="font-size:11px; color:var(--text3);">Selecciona los agentes que formarán tu empresa. Puedes añadir más después. El CEO es obligatorio.</div>
+            </div>
+
+            <div class="panel" style="padding:14px 16px; flex:1; overflow-y:auto;">
+              <div style="font-size:10px; color:var(--text3); margin-bottom:10px; font-family:var(--mono);">
+                SELECCIONADOS: <span id="agent-count" style="color:var(--accent)">1</span> agente(s)
+              </div>
+              <div class="agent-build-grid" id="agent-build-grid">
+                <!-- populated by JS -->
+              </div>
+            </div>
+
+            <div class="panel" style="padding:12px 16px; flex-shrink:0;">
+              <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text3); margin-bottom:8px;">Configuración de Heartbeats</div>
+              <div class="hb-grid" id="hb-grid">
+                <!-- populated by JS -->
+              </div>
+            </div>
+
+            <div class="wizard-foot">
+              <span class="wf-steps">Paso 4 / 5</span>
+              <div class="wf-bar"><div class="wf-fill" style="width:80%"></div></div>
+              <button class="btn btn-ghost" onclick="goStep(2)">← Atrás</button>
+              <button class="btn btn-accent" onclick="completeStep(3)">Configurar Heartbeats →</button>
+            </div>
+          </div>
+
+          <!-- STEP 4: Launch -->
+          <div class="setup-step" id="step-4">
+            <div class="panel" style="flex-shrink:0; padding:16px 18px; border-color:rgba(0,240,192,.25);">
+              <div style="font-size:16px; font-weight:800; margin-bottom:4px; color:var(--accent);">🎉 ¡Todo listo para lanzar!</div>
+              <div style="font-size:11px; color:var(--text3);">Tu empresa autónoma está configurada. Al pulsar "Lanzar", los agentes recibirán su primer heartbeat y comenzarán a trabajar.</div>
+            </div>
+
+            <div class="terminal" style="flex:1; min-height:200px;">
+              <div class="term-bar">
+                <div class="term-dot" style="background:#ff5f57"></div>
+                <div class="term-dot" style="background:#ffbd2e"></div>
+                <div class="term-dot" style="background:#28ca41"></div>
+                <div class="term-title">paperclip — launch sequence</div>
+              </div>
+              <div class="term-body" id="term-launch">
+                <span class="t-line t-out"># Resumen de configuración</span>
+                <span class="t-line t-out" id="launch-name"></span>
+                <span class="t-line t-out" id="launch-mission"></span>
+                <span class="t-line t-out" id="launch-budget"></span>
+                <span class="t-line t-out" id="launch-agents"></span>
+                <span class="t-line">&nbsp;</span>
+                <span class="t-line t-out"># Listo para iniciar. Pulsa "🚀 Lanzar Empresa" para activar los heartbeats.</span>
+                <span class="t-line t-prompt">$ <span class="cursor"></span></span>
+              </div>
+            </div>
+
+            <div class="wizard-foot">
+              <span class="wf-steps">Paso 5 / 5</span>
+              <div class="wf-bar"><div class="wf-fill" style="width:100%"></div></div>
+              <button class="btn btn-ghost" onclick="goStep(3)">← Atrás</button>
+              <button class="btn btn-accent" style="font-size:13px;padding:8px 20px;" onclick="launchCompany()">🚀 Lanzar Empresa</button>
+            </div>
+          </div>
+
+        </div><!-- /setup-main -->
+      </div><!-- /setup-layout -->
+    </div><!-- /view-setup -->
+
+    <!-- ══════════ DASHBOARD ══════════ -->
+    <div class="view" id="view-dashboard">
+      <div class="kpi-row">
+        <div class="kpi" style="--c:var(--accent)">
+          <div class="kpi-lbl">Agentes Activos</div>
+          <div class="kpi-val" id="k-agents">7</div>
+          <div class="kpi-delta up">↑ +2 esta semana</div>
+        </div>
+        <div class="kpi" style="--c:var(--purple)">
+          <div class="kpi-lbl">Tareas en Curso</div>
+          <div class="kpi-val">24</div>
+          <div class="kpi-delta up">↑ 8 completadas hoy</div>
+        </div>
+        <div class="kpi" style="--c:var(--green)">
+          <div class="kpi-lbl">MRR Actual</div>
+          <div class="kpi-val" id="k-mrr">$38K</div>
+          <div class="kpi-delta up">↑ 63% hacia $1M</div>
+        </div>
+        <div class="kpi" style="--c:var(--yellow)">
+          <div class="kpi-lbl">Gasto Tokens</div>
+          <div class="kpi-val" id="k-spend">$342</div>
+          <div class="kpi-delta dn">↑ $47 hoy</div>
+        </div>
+      </div>
+
+      <div class="g32">
+        <div class="panel">
+          <div class="ph"><span class="ph-title">Equipo de Agentes</span><button class="btn btn-ghost" style="font-size:9px;padding:2px 8px" onclick="nav('agents')">Ver todos</button></div>
+          <div style="padding:4px 16px" id="dash-agents"></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><span class="ph-title">Actividad en Vivo</span><span class="pulse"></span></div>
+          <div style="padding:4px 16px" id="dash-feed"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph"><span class="ph-title">Objetivos Estratégicos</span><button class="btn btn-ghost" style="font-size:9px;padding:2px 8px" onclick="nav('goals')">Ver todos</button></div>
+        <div class="pb" id="dash-goals"></div>
+      </div>
+    </div>
+
+    <!-- ══════════ PROJECTS ══════════ -->
+    <div class="view" id="view-projects">
+      <div class="sec-head">
+        <div><div class="sec-title">Proyectos</div><div class="sec-sub">6 proyectos activos · NexaAI Corp</div></div>
+        <button class="btn btn-accent" onclick="openModal('newProject')">+ Nuevo Proyecto</button>
+      </div>
+      <div class="proj-grid" id="proj-grid"></div>
+    </div>
+
+    <!-- ══════════ TASKS ══════════ -->
+    <div class="view" id="view-tasks">
+      <div class="sec-head">
+        <div><div class="sec-title">Tablero de Tareas</div><div class="sec-sub">Kanban · 24 tareas activas</div></div>
+        <button class="btn btn-accent" onclick="openModal('newTask')">+ Nueva Tarea</button>
+      </div>
+      <div class="kanban" id="kanban-board"></div>
+    </div>
+
+    <!-- ══════════ ORG CHART ══════════ -->
+    <div class="view" id="view-orgchart">
+      <div class="sec-head"><div><div class="sec-title">Org Chart</div><div class="sec-sub">Jerarquía de agentes · NexaAI Corp</div></div></div>
+      <div class="panel"><div class="pb">
+        <div class="org-scroll"><div class="org-tree" id="org-tree">
+          <div class="org-lvl">
+            <div class="ocard ceo">
+              <div class="obadge" style="background:var(--green)"></div>
+              <div class="oavt" style="background:rgba(0,240,192,.1)">🤖</div>
+              <div class="oname">APEX-CEO</div>
+              <div class="orole">Director Ejecutivo</div>
+              <div style="margin-top:6px"><span class="chip chip-accent">Claude Sonnet</span></div>
+            </div>
+          </div>
+          <div class="org-line"></div>
+          <div class="org-lvl">
+            <div class="ocard"><div class="obadge" style="background:var(--green)"></div><div class="oavt" style="background:rgba(139,92,246,.1)">⚙️</div><div class="oname">NOVA-CTO</div><div class="orole">Dir. Técnico</div><div style="margin-top:6px"><span class="chip chip-purple">Claude Sonnet</span></div></div>
+            <div class="ocard"><div class="obadge" style="background:var(--green)"></div><div class="oavt" style="background:rgba(34,197,94,.1)">📣</div><div class="oname">ARIA-MKT</div><div class="orole">Dir. Marketing</div><div style="margin-top:6px"><span class="chip chip-green">Claude Haiku</span></div></div>
+            <div class="ocard"><div class="obadge" style="background:var(--border2)"></div><div class="oavt" style="background:rgba(245,158,11,.1)">💼</div><div class="oname">FELIX-CFO</div><div class="orole">Dir. Finanzas</div><div style="margin-top:6px"><span class="chip chip-yellow">Claude Haiku</span></div></div>
+          </div>
+          <div class="org-line"></div>
+          <div class="org-lvl">
+            <div class="ocard"><div class="obadge" style="background:var(--green)"></div><div class="oavt" style="background:rgba(0,240,192,.07)">💻</div><div class="oname">DEV-α</div><div class="orole">Ing. Backend</div><div style="margin-top:6px"><span class="chip chip-accent">Claude Code</span></div></div>
+            <div class="ocard"><div class="obadge" style="background:var(--green)"></div><div class="oavt" style="background:rgba(0,240,192,.07)">🔧</div><div class="oname">DEV-β</div><div class="orole">Ing. Frontend</div><div style="margin-top:6px"><span class="chip chip-accent">Claude Code</span></div></div>
+            <div class="ocard"><div class="obadge" style="background:var(--border2)"></div><div class="oavt" style="background:rgba(245,158,11,.07)">🎨</div><div class="oname">PIXEL-DES</div><div class="orole">Diseñador UI/UX</div><div style="margin-top:6px"><span class="chip chip-yellow">Claude Haiku</span></div></div>
+            <div class="ocard"><div class="obadge" style="background:var(--green)"></div><div class="oavt" style="background:rgba(139,92,246,.07)">📊</div><div class="oname">ANA-DATA</div><div class="orole">Analista Datos</div><div style="margin-top:6px"><span class="chip chip-purple">Claude Haiku</span></div></div>
+          </div>
+        </div></div>
+      </div></div>
+    </div>
+
+    <!-- ══════════ AGENTS ══════════ -->
+    <div class="view" id="view-agents">
+      <div class="sec-head">
+        <div><div class="sec-title">Agentes</div><div class="sec-sub" id="agents-sub">7 agentes · 5 activos</div></div>
+        <button class="btn btn-accent" onclick="openModal('newAgent')">+ Contratar</button>
+      </div>
+      <div class="panel"><div style="padding:0 16px" id="agents-list"></div></div>
+    </div>
+
+    <!-- ══════════ GOALS ══════════ -->
+    <div class="view" id="view-goals">
+      <div class="sec-head">
+        <div><div class="sec-title">Objetivos Estratégicos</div><div class="sec-sub" id="goals-sub">Misión: Construir la #1 plataforma IA</div></div>
+        <button class="btn btn-accent" onclick="openModal('newGoal')">+ Nuevo Objetivo</button>
+      </div>
+      <div class="panel"><div class="pb" id="goals-list"></div></div>
+    </div>
+
+    <!-- ══════════ BUDGET ══════════ -->
+    <div class="view" id="view-budget">
+      <div class="sec-head"><div><div class="sec-title">Presupuesto</div><div class="sec-sub">Marzo 2026 · $342 / $500 gastado</div></div></div>
+      <div class="kpi-row">
+        <div class="kpi" style="--c:var(--green)"><div class="kpi-lbl">Restante</div><div class="kpi-val">$158</div><div class="kpi-delta">11 días restantes</div></div>
+        <div class="kpi" style="--c:var(--yellow)"><div class="kpi-lbl">Gasto Hoy</div><div class="kpi-val">$47</div><div class="kpi-delta dn">↑ +18% vs ayer</div></div>
+        <div class="kpi" style="--c:var(--blue)"><div class="kpi-lbl">Coste/Tarea</div><div class="kpi-val">$1.4</div><div class="kpi-delta up">↓ -5%</div></div>
+        <div class="kpi" style="--c:var(--purple)"><div class="kpi-lbl">Tokens Usados</div><div class="kpi-val">8.4M</div><div class="kpi-delta">de 15M mensuales</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="panel">
+          <div class="ph"><span class="ph-title">Gasto por Agente</span></div>
+          <div class="pb" id="budget-agents"></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><span class="ph-title">Historial diario</span></div>
+          <div class="pb">
+            <div class="chart-bars" id="spend-chart"></div>
+            <div style="font-size:10px;color:var(--red);font-family:var(--mono);margin-top:8px">⚠ Proyección mes: ~$520 · supera límite</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ LOGS ══════════ -->
+    <div class="view" id="view-logs">
+      <div class="sec-head">
+        <div><div class="sec-title">Audit Log</div><div class="sec-sub">Trazabilidad completa · append-only</div></div>
+        <select style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:5px 8px;font-size:10px;font-family:var(--mono)" id="log-filter" onchange="renderLogs()">
+          <option value="all">Todos</option>
+          <option value="success">✓ Success</option>
+          <option value="warn">⚠ Warning</option>
+          <option value="error">✗ Error</option>
+          <option value="info">→ Info</option>
+        </select>
+      </div>
+      <div class="panel"><div class="pb" id="logs-panel"></div></div>
+    </div>
+
+    <!-- ══════════ CEO CHAT ══════════ -->
+    <div class="view" id="view-ceo">
+      <div class="sec-head">
+        <div><div class="sec-title">🤖 APEX-CEO</div><div class="sec-sub">Consultor ejecutivo IA · powered by Claude</div></div>
+        <span class="chip chip-green">● En línea</span>
+      </div>
+      <div class="chat-area">
+        <div class="chat-msgs" id="chat-msgs">
+          <div class="cmsg ai">
+            <div class="cavt" style="background:rgba(0,240,192,.1)">🤖</div>
+            <div class="cbubble">
+              ¡Hola! Soy <strong>APEX-CEO</strong>, el director ejecutivo de tu empresa en Paperclip.<br><br>
+              Tengo visibilidad completa sobre agentes, proyectos, presupuesto y objetivos estratégicos. Puedo ayudarte a tomar decisiones ejecutivas, analizar el estado de la empresa, priorizar tareas o diseñar estrategias de crecimiento.<br><br>
+              ¿En qué trabajamos hoy?
+            </div>
+          </div>
+        </div>
+        <div class="chat-foot">
+          <textarea class="chat-inp" id="chat-inp" rows="2" placeholder="Pregunta algo al CEO… ej: '¿Cómo vamos con el objetivo de $1M MRR?'" onkeydown="chatKey(event)"></textarea>
+          <button class="btn btn-accent" onclick="sendMsg()" style="align-self:flex-end;height:40px">Enviar</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ═══════ MODAL ═══════ -->
+<div class="overlay" id="overlay" onclick="closeOverlay(event)">
+  <div class="modal" id="modal-body"></div>
+</div>
+
+<!-- ═══════ TOAST ═══════ -->
+<div class="toast" id="toast">
+  <div class="t-title" id="t-title"></div>
+  <div class="t-msg" id="t-msg"></div>
+</div>
+
+<!-- ═══════════════════════════════════════ SCRIPT ═══════════════════════════════════════ -->
+<script>
+// ═══ STATE ═══
+const S = {
+  step: 0,
+  stepsDone: [],
+  company: { name:'NexaAI Corp', mission:'Construir la #1 plataforma IA para empresas autónomas', goal:'$1M MRR', budget:500, spend:342 },
+  selectedAgents: [0], // CEO always selected
+  agents: [
+    { id:0, name:'APEX-CEO', role:'Director Ejecutivo', model:'Claude Sonnet 4.6', status:'running', tasks:3, budget:89, budgetMax:150, emoji:'🤖', hb:'1h', required:true },
+    { id:1, name:'NOVA-CTO', role:'Director Técnico',   model:'Claude Sonnet 4.6', status:'running', tasks:5, budget:112, budgetMax:150, emoji:'⚙️', hb:'2h' },
+    { id:2, name:'ARIA-MKT', role:'Dir. Marketing',     model:'Claude Haiku 4.5',  status:'running', tasks:4, budget:48,  budgetMax:80,  emoji:'📣', hb:'4h' },
+    { id:3, name:'FELIX-CFO',role:'Dir. Finanzas',      model:'Claude Haiku 4.5',  status:'idle',    tasks:1, budget:9,   budgetMax:60,  emoji:'💼', hb:'8h' },
+    { id:4, name:'DEV-α',    role:'Ing. Backend',       model:'Claude Code',       status:'waiting', tasks:6, budget:56,  budgetMax:100, emoji:'💻', hb:'1h' },
+    { id:5, name:'DEV-β',    role:'Ing. Frontend',      model:'Claude Code',       status:'running', tasks:3, budget:28,  budgetMax:100, emoji:'🔧', hb:'1h' },
+    { id:6, name:'PIXEL-DES',role:'Diseñador UI/UX',    model:'Claude Haiku 4.5',  status:'idle',    tasks:2, budget:9,   budgetMax:60,  emoji:'🎨', hb:'4h' },
+    { id:7, name:'ANA-DATA', role:'Analista de Datos',  model:'Claude Haiku 4.5',  status:'running', tasks:4, budget:20,  budgetMax:60,  emoji:'📊', hb:'6h' },
+  ],
+  projects: [
+    { id:'P01', name:'Plataforma v2.0',      desc:'Motor IA con 5 integraciones', progress:60, agent:'NOVA-CTO', tag:'eng', tasks:14, status:'active' },
+    { id:'P02', name:'Campaña Marketing Q2', desc:'Lanzamiento y adquisición',    progress:35, agent:'ARIA-MKT', tag:'mkt', tasks:8,  status:'active' },
+    { id:'P03', name:'Infra & DevOps',       desc:'Migración K8s + CI/CD',        progress:78, agent:'DEV-α',   tag:'ops', tasks:6,  status:'active' },
+    { id:'P04', name:'Onboarding Clientes',  desc:'Flujo de onboarding',          progress:50, agent:'APEX-CEO',tag:'ops', tasks:5,  status:'active' },
+    { id:'P05', name:'Rediseño Dashboard',   desc:'Nueva UI Figma + impl.',       progress:20, agent:'PIXEL-DES',tag:'des',tasks:9, status:'paused' },
+    { id:'P06', name:'API Pública v1',       desc:'Docs y SDK developers',        progress:45, agent:'DEV-β',   tag:'eng', tasks:11, status:'active' },
+  ],
+  tasks: {
+    backlog:    [{id:'T-052',title:'Webhook Stripe nuevos subs',       agent:'DEV-α',    tag:'eng'},{id:'T-053',title:'Landing page "AutoPilot"',      agent:'PIXEL-DES',tag:'des'},{id:'T-054',title:'Análisis competidores Q2',       agent:'ANA-DATA', tag:'ops'}],
+    inprogress: [{id:'T-048',title:'Refactorizar OAuth2 auth',         agent:'NOVA-CTO', tag:'eng'},{id:'T-049',title:'Newsletter + email campaign',    agent:'ARIA-MKT', tag:'mkt'},{id:'T-050',title:'Dashboard métricas real-time',  agent:'DEV-β',    tag:'eng'}],
+    review:     [{id:'T-046',title:'Test suite módulo de pagos',       agent:'DEV-α',    tag:'eng'},{id:'T-047',title:'Documentar API endpoints v2',    agent:'NOVA-CTO', tag:'eng'}],
+    done:       [{id:'T-044',title:'Migrar DB a PostgreSQL 16',        agent:'DEV-α',    tag:'ops'},{id:'T-045',title:'Optimizar queries de reporte',   agent:'ANA-DATA', tag:'ops'},{id:'T-043',title:'Post Product Hunt preparado', agent:'ARIA-MKT', tag:'mkt'}],
+  },
+  goals: [
+    { title:'Alcanzar $1M MRR',          desc:'Plataforma #1 de IA para empresas autónomas',   progress:3.8,  current:'$38K',      target:'$1M MRR',    owner:'APEX-CEO' },
+    { title:'Lanzar producto v2.0',       desc:'5 integraciones: Slack, Jira, GitHub, Stripe',  progress:60,   current:'3 / 5',     target:'5 integ.',   owner:'NOVA-CTO' },
+    { title:'100 clientes de pago',       desc:'Adquisición orgánica + outbound Q2 2026',        progress:63,   current:'63 clientes',target:'100 clientes',owner:'ARIA-MKT' },
+    { title:'NPS > 50',                   desc:'Onboarding y soporte automatizado mejorado',     progress:72,   current:'NPS 36',    target:'NPS 50',     owner:'APEX-CEO' },
+    { title:'Infra 99.9% uptime',         desc:'Migración K8s + redundancia multi-región',       progress:88,   current:'99.7%',     target:'99.9%',      owner:'DEV-α' },
+  ],
+  logs: [],
+  chatHistory: [],
+};
+
+// ═══ UTILS ═══
+function toast(title, msg, color) {
+  const t = document.getElementById('toast');
+  document.getElementById('t-title').textContent = title;
+  document.getElementById('t-msg').textContent = msg;
+  t.style.borderColor = color || 'var(--border2)';
+  t.classList.add('show');
+  clearTimeout(t._to);
+  t._to = setTimeout(() => t.classList.remove('show'), 3200);
+}
+function addLog(level, src, msg) {
+  const ts = new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  S.logs.push({ level, src, msg, ts });
+}
+function copyCmd(cmd) {
+  navigator.clipboard.writeText(cmd).then(() => toast('Copiado', cmd.slice(0,50) + '…')).catch(() => toast('Copia manual', cmd));
+}
+
+// ═══ NAVIGATION ═══
+const viewMeta = {
+  setup:     ['⚡ Quickstart',       'Configura Paperclip · lanza tu empresa autónoma'],
+  dashboard: ['Dashboard',           'Visión general · NexaAI Corp'],
+  projects:  ['Proyectos',           '6 proyectos activos'],
+  tasks:     ['Tablero de Tareas',   'Kanban · 24 tareas activas'],
+  orgchart:  ['Org Chart',           'Jerarquía de agentes · NexaAI Corp'],
+  agents:    ['Agentes',             '7 agentes en el equipo'],
+  goals:     ['Objetivos',           'Alineación con la misión'],
+  budget:    ['Presupuesto',         'Control de costes · Marzo 2026'],
+  logs:      ['Audit Log',           'Trazabilidad completa · append-only'],
+  ceo:       ['🤖 APEX-CEO',         'Consultor ejecutivo IA · powered by Claude'],
+};
+function nav(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector(`.nav-item[data-view="${name}"]`)?.classList.add('active');
+  const [title, sub] = viewMeta[name];
+  document.getElementById('tb-title').textContent = title;
+  document.getElementById('tb-sub').textContent = sub;
+  if(name==='projects') renderProjects();
+  if(name==='tasks')    renderKanban();
+  if(name==='agents')   renderAgents();
+  if(name==='goals')    renderGoals();
+  if(name==='budget')   renderBudget();
+  if(name==='logs')     renderLogs();
+  if(name==='dashboard') renderDashboard();
+}
+
+// ═══ SETUP WIZARD ═══
+function goStep(n) {
+  if(n > S.step && !S.stepsDone.includes(n-1) && n > 0) return; // locked
+  S.step = n;
+  document.querySelectorAll('.setup-step').forEach((s,i) => s.classList.toggle('active', i===n));
+  document.querySelectorAll('.step-item').forEach((s,i) => {
+    s.classList.remove('active','done','locked');
+    if(S.stepsDone.includes(i)) s.classList.add('done');
+    else if(i === n) s.classList.add('active');
+    else if(i > n && !S.stepsDone.includes(i)) s.classList.add('locked');
+  });
+  const pct = Math.round((n / 5) * 100) + 10;
+  document.getElementById('setup-prog-bar').style.width = Math.min(pct,100)+'%';
+  document.getElementById('setup-prog-txt').textContent = `Paso ${n+1} de 5`;
+  if(n===0) runReqCheck();
+  if(n===3) renderAgentBuilder();
+  if(n===4) fillLaunchSummary();
+}
+
+function completeStep(n) {
+  if(!S.stepsDone.includes(n)) S.stepsDone.push(n);
+  document.getElementById('sc-'+n).textContent = '✓';
+  document.getElementById('si-'+n).classList.add('done');
+  document.getElementById('si-'+n).classList.remove('active');
+  if(n < 4) {
+    document.getElementById('si-'+(n+1))?.classList.remove('locked');
+    goStep(n+1);
+  }
+  addLog('success','SYSTEM',`Setup step ${n+1} completado`);
+}
+
+// Requirements check simulation
+function runReqCheck() {
+  const term = document.getElementById('term-req');
+  const checks = [
+    { el:'node', cmd:'node --version', delay:600,  ok:true,  val:'v22.14.0', note:'✓ Node.js 22 · compatible (req: ≥20)' },
+    { el:'pnpm', cmd:'pnpm --version', delay:1200, ok:true,  val:'9.15.4',   note:'✓ pnpm 9.15 · compatible (req: ≥9.15)' },
+    { el:'git',  cmd:'git --version',  delay:1800, ok:true,  val:'2.47.0',   note:'✓ git instalado' },
+    { el:'api',  cmd:'echo $ANTHROPIC_API_KEY | cut -c1-8', delay:2400, ok:null, val:'sk-ant-...', note:'⚠ Configura tu API key en .env' },
+  ];
+
+  term.innerHTML = '<span class="t-line t-out">→ Verificando entorno del sistema…</span>';
+
+  checks.forEach(({el, cmd, delay, ok, val, note}) => {
+    setTimeout(() => {
+      term.innerHTML += `\n<span class="t-line"><span class="t-prompt">$ </span><span class="t-cmd">${cmd}</span></span>`;
+      setTimeout(() => {
+        const cls = ok === true ? 't-ok' : ok === false ? 't-err' : 't-warn';
+        const icon = ok === true ? '✓' : ok === false ? '✗' : '⚠';
+        term.innerHTML += `\n<span class="t-line ${cls}">${icon} ${val}</span>`;
+        term.innerHTML += `\n<span class="t-line t-out">${note}</span>`;
+
+        const status = ok === true ? '✓ OK' : ok === false ? '✗ Error' : '⚠ Config';
+        const chipClass = ok === true ? 'chip-green' : ok === false ? 'chip-red' : 'chip-yellow';
+        document.getElementById('rs-'+el).textContent = status;
+        document.getElementById('rs-'+el).style.color = ok===true?'var(--green)':ok===false?'var(--red)':'var(--yellow)';
+        document.getElementById('rc-'+el).className = `chip ${chipClass}`;
+        document.getElementById('rc-'+el).textContent = ok===true?'OK':ok===false?'ERROR':'WARN';
+        term.scrollTop = term.scrollHeight;
+      }, 200);
+    }, delay);
+  });
+
+  setTimeout(() => {
+    term.innerHTML += '\n<span class="t-line t-out">──────────────────────────────────────</span>';
+    term.innerHTML += '\n<span class="t-line t-ok">✓ Sistema listo · 3/4 requisitos OK · 1 configuración pendiente</span>';
+    term.innerHTML += '\n<span class="t-line t-prompt">$ <span class="cursor"></span></span>';
+    term.scrollTop = term.scrollHeight;
+  }, 3200);
+}
+
+// Install simulation
+function runInstallSim() {
+  const term = document.getElementById('term-install');
+  term.innerHTML = '';
+  const lines = [
+    [0,    'prompt', '$ npx paperclipai onboard --yes'],
+    [400,  'out',    ''],
+    [500,  'hl',     '📎 Paperclip Onboard v2026.318.0'],
+    [700,  'out',    '──────────────────────────────────────────────'],
+    [900,  'out',    '→ Checking Node.js version… v22.14.0 ✓'],
+    [1100, 'out',    '→ Checking pnpm version… 9.15.4 ✓'],
+    [1300, 'out',    ''],
+    [1400, 'out',    '→ Cloning paperclipai/paperclip…'],
+    [1800, 'ok',     '✓ Cloned (1.2s)'],
+    [2000, 'out',    ''],
+    [2100, 'out',    '→ Installing dependencies (pnpm install)…'],
+    [2300, 'out',    '  packages: 847 added · 0 changed · 0 removed'],
+    [2700, 'ok',     '✓ Dependencies installed (4.1s)'],
+    [2900, 'out',    ''],
+    [3000, 'out',    '→ Setting up embedded PostgreSQL…'],
+    [3400, 'ok',     '✓ Database ready at ~/.paperclip/data/'],
+    [3600, 'out',    ''],
+    [3700, 'out',    '→ Running database migrations…'],
+    [3900, 'ok',     '✓ Migrations applied (15 migrations)'],
+    [4100, 'out',    ''],
+    [4200, 'out',    '→ Generating secret keys…'],
+    [4400, 'ok',     '✓ JWT secret generated'],
+    [4500, 'ok',     '✓ Session secret generated'],
+    [4700, 'out',    ''],
+    [4800, 'hl',     '🚀 Paperclip is running!'],
+    [5000, 'ok',     '✓ API Server  →  http://localhost:3100'],
+    [5100, 'ok',     '✓ UI          →  http://localhost:3100/ui'],
+    [5200, 'ok',     '✓ Docs        →  http://localhost:3100/docs'],
+    [5400, 'out',    ''],
+    [5500, 'ok',     '✓ Onboarding complete! Open http://localhost:3100 to continue.'],
+    [5700, 'prompt', '$ '],
+  ];
+  lines.forEach(([delay, type, text]) => {
+    setTimeout(() => {
+      const cls = { prompt:'t-prompt', out:'t-out', ok:'t-ok', warn:'t-warn', err:'t-err', hl:'t-hl' }[type];
+      term.innerHTML += `<span class="t-line ${cls}">${text}</span>\n`;
+      term.scrollTop = term.scrollHeight;
+    }, delay);
+  });
+  setTimeout(() => {
+    term.innerHTML += '<span class="t-line t-prompt">$ <span class="cursor"></span></span>';
+    term.scrollTop = term.scrollHeight;
+    toast('Instalación completa', '¡Paperclip corriendo en localhost:3100!', 'var(--accent)');
+  }, 5900);
+}
+
+// Agent builder
+function renderAgentBuilder() {
+  const grid = document.getElementById('agent-build-grid');
+  grid.innerHTML = S.agents.map(a => `
+    <div class="agent-build-card ${S.selectedAgents.includes(a.id)?'selected':''} ${a.required?'':''}"
+         onclick="${a.required?'':'toggleAgent('+a.id+')'}">
+      <div class="abc-check">✓</div>
+      <div class="abc-emoji">${a.emoji}</div>
+      <div class="abc-name">${a.name}</div>
+      <div class="abc-role">${a.role}</div>
+      <div class="abc-model">${a.model}</div>
+      ${a.required?'<div style="font-size:9px;color:var(--yellow);font-family:var(--mono);margin-top:2px">OBLIGATORIO</div>':''}
+    </div>
+  `).join('');
+
+  // Heartbeat grid
+  const hbGrid = document.getElementById('hb-grid');
+  hbGrid.innerHTML = S.agents.filter(a => S.selectedAgents.includes(a.id)).map(a => `
+    <div class="hb-card">
+      <div class="hb-avatar" style="background:var(--bg4)">${a.emoji}</div>
+      <div class="hb-info">
+        <div class="hb-name">${a.name}</div>
+        <div class="hb-next">Heartbeat cada ${a.hb}</div>
+      </div>
+      <div class="hb-dot on"></div>
+    </div>
+  `).join('');
+}
+function toggleAgent(id) {
+  if(S.selectedAgents.includes(id)) {
+    S.selectedAgents = S.selectedAgents.filter(x => x !== id);
+  } else {
+    S.selectedAgents.push(id);
+  }
+  document.getElementById('agent-count').textContent = S.selectedAgents.length;
+  renderAgentBuilder();
+}
+
+// Launch summary
+function fillLaunchSummary() {
+  const name = document.getElementById('co-name')?.value || S.company.name;
+  const mission = document.getElementById('co-mission')?.value || S.company.mission;
+  const budget = document.getElementById('co-budget')?.value || S.company.budget;
+  const agentCount = S.selectedAgents.length;
+  document.getElementById('launch-name').textContent    = `company.name     = "${name}"`;
+  document.getElementById('launch-mission').textContent = `company.mission  = "${mission.slice(0,60)}"`;
+  document.getElementById('launch-budget').textContent  = `company.budget   = $${budget}/month`;
+  document.getElementById('launch-agents').textContent  = `company.agents   = ${agentCount} agentes contratados`;
+}
+
+function launchCompany() {
+  const term = document.getElementById('term-launch');
+  const name = document.getElementById('co-name')?.value || 'Mi Empresa';
+  const lines = [
+    [0,   'out',  '→ Iniciando empresa "' + name + '"…'],
+    [400, 'out',  '→ Creando org structure…'],
+    [700, 'ok',   '✓ Org chart creado'],
+    [900, 'out',  '→ Configurando agentes y budgets…'],
+    [1200,'ok',   '✓ ' + S.selectedAgents.length + ' agentes registrados'],
+    [1400,'out',  '→ Activando heartbeats…'],
+    [1800,'ok',   '✓ Heartbeats activos · primer ciclo en 60s'],
+    [2000,'out',  '→ Enviando primer heartbeat al CEO…'],
+    [2500,'ok',   '✓ APEX-CEO recibió heartbeat · analizando objetivos'],
+    [2700,'out',  ''],
+    [2800,'hl',   '🎉 ¡' + name + ' está operativa!'],
+    [3000,'ok',   '✓ Dashboard listo en http://localhost:3100'],
+    [3100,'out',  ''],
+    [3200,'out',  '📎 Tu empresa autónoma está en marcha.'],
+  ];
+  term.innerHTML = '';
+  lines.forEach(([d,t,txt]) => {
+    setTimeout(() => {
+      const cls = {prompt:'t-prompt',out:'t-out',ok:'t-ok',warn:'t-warn',err:'t-err',hl:'t-hl'}[t];
+      term.innerHTML += `<span class="t-line ${cls}">${txt}</span>\n`;
+      term.scrollTop = term.scrollHeight;
+    }, d);
+  });
+  setTimeout(() => {
+    term.innerHTML += '<span class="t-line t-prompt">$ <span class="cursor"></span></span>';
+    toast('🎉 ¡Empresa lanzada!', name + ' está operativa · agentes activos', 'var(--accent)');
+    S.company.name = document.getElementById('co-name')?.value || S.company.name;
+    // Update sidebar pill
+    document.querySelector('.co-pill-name').textContent = '🚀 ' + S.company.name;
+    document.querySelector('.co-pill-status').innerHTML = '<span class="pulse"></span> ' + S.selectedAgents.length + ' agentes activos';
+    document.querySelector('.co-pill-setup')?.remove();
+    document.getElementById('spend-val').textContent = '$0 / $' + (document.getElementById('co-budget')?.value || 500);
+    document.getElementById('spend-bar').style.width = '0%';
+    addLog('success','SYSTEM','Empresa "'+S.company.name+'" lanzada · heartbeats activos');
+    // Unlock nav badge
+    document.getElementById('nb-proj').textContent = S.projects.length;
+    setTimeout(() => nav('dashboard'), 4000);
+  }, 3400);
+}
+
+// ═══ RENDER FUNCTIONS ═══
+function renderDashboard() {
+  // Agents
+  const da = document.getElementById('dash-agents');
+  da.innerHTML = S.agents.slice(0,5).map(a => `
+    <div class="arow">
+      <div class="avtr" style="background:var(--bg4)">${a.emoji}</div>
+      <div style="flex:1"><div class="aname">${a.name}</div><div class="arole">${a.role}</div></div>
+      <div class="astatus s-${a.status}">${a.status}</div>
+    </div>
+  `).join('');
+  // Feed
+  const df = document.getElementById('dash-feed');
+  const feed = [
+    ['✅','rgba(34,197,94,.1)','NOVA-CTO','completó tarea #T-047','hace 3 min'],
+    ['🎯','rgba(0,240,192,.1)','APEX-CEO','aprobó estrategia Q2','hace 12 min'],
+    ['📣','rgba(139,92,246,.1)','ARIA-MKT','newsletter enviado · 2.3K subs','hace 28 min'],
+    ['⚠️','rgba(245,158,11,.1)','DEV-α','bloqueado en T-051','hace 45 min'],
+    ['💰','rgba(34,197,94,.1)','Sistema','nuevo cliente TechFlow · $2.4K/mes','hace 1h'],
+  ];
+  df.innerHTML = feed.map(([icon,bg,src,msg,time]) => `
+    <div class="fitem">
+      <div class="ficon" style="background:${bg}">${icon}</div>
+      <div><div class="fmsg"><strong>${src}</strong> ${msg}</div><div class="ftime">${time}</div></div>
+    </div>
+  `).join('');
+  // Goals preview
+  const dg = document.getElementById('dash-goals');
+  dg.innerHTML = S.goals.slice(0,3).map(g => `
+    <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:12px;font-weight:700">${g.title}</span>
+        <span style="font-size:10px;font-family:var(--mono);color:var(--text2)">${g.current} → ${g.target}</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" style="width:${g.progress}%"></div></div>
+    </div>
+  `).join('');
+}
+
+function renderProjects() {
+  document.getElementById('proj-grid').innerHTML = S.projects.map(p => `
+    <div class="pcard" onclick="toast('Proyecto','${p.name} · ${p.tasks} tareas')">
+      <div class="pcard-top">
+        <div class="pcard-name">${p.name}</div>
+        <div class="pcard-desc">${p.desc}</div>
+      </div>
+      <div style="padding:8px 14px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:9px;color:var(--text3);font-family:var(--mono)">PROGRESO</span>
+          <span style="font-size:9px;font-family:var(--mono);color:var(--text2)">${p.progress}%</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" style="width:${p.progress}%"></div></div>
+      </div>
+      <div class="pcard-foot">
+        <span class="tag t-${p.tag}">${p.tag.toUpperCase()}</span>
+        <span style="font-size:10px;color:var(--text3)">👤 ${p.agent}</span>
+        <span class="pcard-prog">${p.tasks} tareas</span>
+        <span style="font-size:10px;color:${p.status==='active'?'var(--green)':'var(--yellow)'}">${p.status==='active'?'● activo':'◌ pausado'}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderKanban() {
+  const cols = { backlog:'📋 Backlog', inprogress:'⚡ En Curso', review:'👁 Revisión', done:'✅ Hecho' };
+  document.getElementById('kanban-board').innerHTML = Object.entries(cols).map(([k,label]) => `
+    <div class="kcol">
+      <div class="kcol-head">${label}<span class="kcol-count">${S.tasks[k].length}</span></div>
+      ${S.tasks[k].map(t => `
+        <div class="kcard" onclick="toast('Tarea','${t.id}: ${t.title}')">
+          <div class="kcard-title">${t.title}</div>
+          <div class="kcard-meta">
+            <span class="tag t-${t.tag}">${t.tag.toUpperCase()}</span>
+            <span class="kagent">${t.agent}</span>
+          </div>
+          <div style="font-size:9px;color:var(--text3);margin-top:4px;font-family:var(--mono)">${t.id}</div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function renderAgents() {
+  document.getElementById('agents-sub').textContent = `${S.agents.length} agentes · ${S.agents.filter(a=>a.status==='running').length} activos`;
+  document.getElementById('agents-list').innerHTML = S.agents.map(a => `
+    <div class="arow" onclick="toast('Agente','${a.name} · ${a.model} · $${a.budget}/$${a.budgetMax}')">
+      <div class="avtr" style="background:var(--bg3)">${a.emoji}</div>
+      <div style="flex:0 0 160px"><div class="aname">${a.name}</div><div class="arole">${a.role}</div></div>
+      <div style="flex:0 0 110px"><span class="chip chip-blue" style="font-size:8px">${a.model}</span></div>
+      <div style="flex:1;padding:0 16px">
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-bottom:3px;font-family:var(--mono)">
+          <span>Budget</span><span>$${a.budget} / $${a.budgetMax}</span>
+        </div>
+        <div class="prog2"><div style="height:100%;width:${Math.round(a.budget/a.budgetMax*100)}%;border-radius:2px;background:${a.budget/a.budgetMax>.75?'var(--red)':a.budget/a.budgetMax>.5?'var(--yellow)':'var(--green)'}"></div></div>
+      </div>
+      <div style="font-size:10px;color:var(--text3);min-width:60px;text-align:center;font-family:var(--mono)">${a.tasks} tareas</div>
+      <div style="font-size:10px;color:var(--text3);min-width:50px;text-align:center;font-family:var(--mono)">${a.hb}</div>
+      <div class="astatus s-${a.status}">${a.status}</div>
+    </div>
+  `).join('');
+}
+
+function renderGoals() {
+  document.getElementById('goals-sub').textContent = 'Misión: ' + S.company.mission.slice(0,55) + '…';
+  document.getElementById('goals-list').innerHTML = S.goals.map(g => `
+    <div class="goal-item">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div class="goal-title">${g.title}</div>
+        <span style="font-size:9px;color:var(--text3);font-family:var(--mono);white-space:nowrap">👤 ${g.owner}</span>
+      </div>
+      <div class="goal-desc">${g.desc}</div>
+      <div class="prog-row">
+        <span class="prog-label">${g.current} → ${g.target}</span>
+        <span class="prog-pct">${g.progress}%</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" style="width:${g.progress}%"></div></div>
+    </div>
+  `).join('');
+}
+
+function renderBudget() {
+  document.getElementById('budget-agents').innerHTML = S.agents.slice(0,5).map(a => `
+    <div>
+      <div class="brow">
+        <span style="font-size:14px">${a.emoji}</span>
+        <span class="bname">${a.name}</span>
+        <span class="bamt">$${a.budget} / $${a.budgetMax}</span>
+      </div>
+      <div class="prog2" style="margin-bottom:8px">
+        <div style="height:100%;width:${Math.round(a.budget/a.budgetMax*100)}%;border-radius:2px;background:${a.budget/a.budgetMax>.75?'var(--red)':a.budget/a.budgetMax>.5?'var(--yellow)':'var(--green)'}"></div>
+      </div>
+    </div>
+  `).join('');
+
+  const vals = [12,18,9,24,31,22,15,28,35,41,29,38,33,47,42,36,44,47,39,52];
+  const max = Math.max(...vals);
+  document.getElementById('spend-chart').innerHTML = vals.map((v,i) => `
+    <div class="chart-bar" style="height:${Math.round(v/max*100)}%;background:${i===vals.length-1?'var(--accent)':'var(--border2)'}"></div>
+  `).join('');
+}
+
+function renderLogs() {
+  const filter = document.getElementById('log-filter')?.value || 'all';
+  const filtered = filter === 'all' ? S.logs : S.logs.filter(l => l.level===filter);
+  const icons = { success:'✓', warn:'⚠', error:'✗', info:'→' };
+  document.getElementById('logs-panel').innerHTML = [...filtered].reverse().map(l => `
+    <div class="logline ${l.level}">
+      <span class="l-ts">${l.ts}</span>
+      <span class="l-src">${l.src}</span>
+      <span class="l-msg">${icons[l.level]||'·'} ${l.msg}</span>
+    </div>
+  `).join('') || '<div style="color:var(--text3);font-size:11px;padding:8px">No hay logs para este filtro.</div>';
+}
+
+// ═══ MODALS ═══
+const modalContent = {
+  newTask: `
+    <div class="mhead"><div class="mtitle">✦ Nueva Tarea</div><button class="mclose" onclick="closeOverlay()">✕</button></div>
+    <div class="field" style="margin-bottom:10px"><label>Título</label><input id="m-task" placeholder="Ej: Implementar autenticación SSO"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="field"><label>Proyecto</label><select><option>Plataforma v2.0</option><option>Campaña Q2</option><option>Infra & DevOps</option></select></div>
+      <div class="field"><label>Asignar a</label><select id="m-task-agent">${S.agents.map(a=>`<option>${a.name}</option>`).join('')}</select></div>
+    </div>
+    <div class="field" style="margin-bottom:10px"><label>Descripción</label><textarea rows="3" placeholder="Contexto y criterios de aceptación…"></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="field"><label>Prioridad</label><select><option>Alta</option><option>Media</option><option>Baja</option></select></div>
+      <div class="field"><label>Tag</label><select><option>eng</option><option>mkt</option><option>ops</option><option>des</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-accent" style="flex:1" onclick="createTask()">Crear Tarea</button>
+      <button class="btn btn-ghost" onclick="closeOverlay()">Cancelar</button>
+    </div>`,
+  newAgent: `
+    <div class="mhead"><div class="mtitle">⬡ Contratar Agente</div><button class="mclose" onclick="closeOverlay()">✕</button></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="field"><label>Nombre del Agente</label><input id="m-aname" placeholder="Ej: SALES-BOT"></div>
+      <div class="field"><label>Título / Rol</label><input placeholder="Ej: Dir. de Ventas"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="field"><label>Modelo IA</label><select><option>Claude Sonnet 4.6</option><option>Claude Haiku 4.5</option><option>Claude Code</option><option>Claude Opus 4.6</option></select></div>
+      <div class="field"><label>Presupuesto / mes ($)</label><input type="number" value="100" min="10"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="field"><label>Reporta a</label><select>${S.agents.slice(0,4).map(a=>`<option>${a.name}</option>`).join('')}</select></div>
+      <div class="field"><label>Heartbeat</label><select><option>1h</option><option>2h</option><option>4h</option><option>8h</option><option>24h</option></select></div>
+    </div>
+    <div class="field" style="margin-bottom:14px"><label>Descripción del rol</label><textarea rows="3" placeholder="Objetivos y responsabilidades…"></textarea></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-accent" style="flex:1" onclick="hireAgent()">Contratar</button>
+      <button class="btn btn-ghost" onclick="closeOverlay()">Cancelar</button>
+    </div>`,
+  newProject: `
+    <div class="mhead"><div class="mtitle">◫ Nuevo Proyecto</div><button class="mclose" onclick="closeOverlay()">✕</button></div>
+    <div class="field" style="margin-bottom:10px"><label>Nombre del Proyecto</label><input id="m-pname" placeholder="Ej: Integración Salesforce"></div>
+    <div class="field" style="margin-bottom:10px"><label>Descripción</label><textarea rows="2" placeholder="Objetivo del proyecto…"></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="field"><label>Responsable</label><select>${S.agents.slice(0,5).map(a=>`<option>${a.name}</option>`).join('')}</select></div>
+      <div class="field"><label>Objetivo vinculado</label><select><option>$1M MRR</option><option>Lanzar v2.0</option><option>100 clientes</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-accent" style="flex:1" onclick="createProject()">Crear Proyecto</button>
+      <button class="btn btn-ghost" onclick="closeOverlay()">Cancelar</button>
+    </div>`,
+  newGoal: `
+    <div class="mhead"><div class="mtitle">◎ Nuevo Objetivo</div><button class="mclose" onclick="closeOverlay()">✕</button></div>
+    <div class="field" style="margin-bottom:10px"><label>Título</label><input placeholder="Ej: 10.000 usuarios activos"></div>
+    <div class="field" style="margin-bottom:10px"><label>Descripción</label><textarea rows="2" placeholder="¿Por qué es importante?"></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="field"><label>Métrica de éxito</label><input placeholder="Ej: 10.000 DAU"></div>
+      <div class="field"><label>Propietario</label><select>${S.agents.slice(0,4).map(a=>`<option>${a.name}</option>`).join('')}</select></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-accent" style="flex:1" onclick="createGoal()">Crear Objetivo</button>
+      <button class="btn btn-ghost" onclick="closeOverlay()">Cancelar</button>
+    </div>`,
+};
+
+function openModal(id) {
+  document.getElementById('modal-body').innerHTML = modalContent[id] || '';
+  document.getElementById('overlay').classList.add('open');
+}
+function closeOverlay(e) {
+  if(e && e.target !== document.getElementById('overlay')) return;
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function createTask() {
+  const title = document.getElementById('m-task')?.value || 'Nueva tarea';
+  const agent = document.getElementById('m-task-agent')?.value || 'APEX-CEO';
+  S.tasks.backlog.unshift({ id:'T-0'+(60+S.tasks.backlog.length), title, agent, tag:'eng' });
+  closeOverlay();
+  toast('✓ Tarea creada', `"${title}" → ${agent}`, 'var(--accent)');
+  addLog('success', agent, `Nueva tarea: "${title}"`);
+  document.getElementById('nb-tasks').textContent = Object.values(S.tasks).flat().length;
+}
+function hireAgent() {
+  const name = document.getElementById('m-aname')?.value || 'NEW-AGENT';
+  S.agents.push({ name, role:'Nuevo agente', model:'Claude Haiku 4.5', status:'idle', tasks:0, budget:0, budgetMax:100, emoji:'🤖', hb:'4h' });
+  closeOverlay();
+  toast('✓ Agente contratado', name + ' se une al equipo', 'var(--accent)');
+  addLog('success','APEX-CEO',`Nuevo agente: ${name}`);
+}
+function createProject() {
+  const name = document.getElementById('m-pname')?.value || 'Nuevo Proyecto';
+  S.projects.push({ id:'P0'+(S.projects.length+1), name, desc:'Proyecto nuevo', progress:0, agent:'APEX-CEO', tag:'ops', tasks:0, status:'active' });
+  closeOverlay();
+  toast('✓ Proyecto creado', name, 'var(--accent)');
+  addLog('success','APEX-CEO',`Proyecto: "${name}"`);
+  document.getElementById('nb-proj').textContent = S.projects.length;
+}
+function createGoal() {
+  closeOverlay();
+  toast('✓ Objetivo creado', 'Alineado con la misión de la empresa', 'var(--accent)');
+}
+
+// ═══ CEO CHAT ═══
+async function sendMsg() {
+  const inp = document.getElementById('chat-inp');
+  const msg = inp.value.trim();
+  if(!msg) return;
+  inp.value = '';
+
+  const msgs = document.getElementById('chat-msgs');
+  msgs.innerHTML += `<div class="cmsg user"><div class="cavt" style="background:var(--purple)">👤</div><div class="cbubble">${msg}</div></div>`;
+  msgs.innerHTML += `<div class="cmsg ai" id="ctyping"><div class="cavt" style="background:rgba(0,240,192,.1)">🤖</div><div class="cbubble"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+
+  const sys = `Eres APEX-CEO, el CEO agente de ${S.company.name}.
+ESTADO DE LA EMPRESA:
+- Misión: ${S.company.mission}
+- Objetivo norte: ${S.company.goal}
+- Agentes activos: ${S.agents.filter(a=>a.status==='running').length} / ${S.agents.length} (${S.agents.map(a=>a.name).join(', ')})
+- Presupuesto mensual: $${S.company.budget} · gastado: $${S.company.spend} · restante: $${S.company.budget - S.company.spend}
+- Proyectos activos: ${S.projects.filter(p=>p.status==='active').length}
+- Objetivos: ${S.goals.map(g=>g.title+' ('+g.progress+'%)').join(' | ')}
+- Tareas abiertas: ${Object.values(S.tasks).flat().length}
+Responde en español. Sé estratégico, directo y ejecutivo. Máx 3 párrafos.`;
+
+  S.chatHistory.push({ role:'user', content: msg });
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: sys,
+        messages: S.chatHistory,
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.map(c=>c.text||'').join('') || 'No pude procesar la respuesta.';
+    S.chatHistory.push({ role:'assistant', content: reply });
+    document.getElementById('ctyping')?.remove();
+    msgs.innerHTML += `<div class="cmsg ai"><div class="cavt" style="background:rgba(0,240,192,.1)">🤖</div><div class="cbubble">${reply.replace(/\n/g,'<br>')}</div></div>`;
+    addLog('info','APEX-CEO',`Chat: "${msg.slice(0,50)}"`);
+  } catch {
+    document.getElementById('ctyping')?.remove();
+    msgs.innerHTML += `<div class="cmsg ai"><div class="cavt" style="background:rgba(0,240,192,.1)">🤖</div><div class="cbubble" style="border-color:var(--red)">⚠ Error conectando con la API. Verifica la conexión.</div></div>`;
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+}
+function chatKey(e) {
+  if(e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+}
+
+// ═══ INITIAL LOGS ═══
+[
+  ['success','APEX-CEO','Heartbeat ejecutado · revisando objetivos Q2'],
+  ['info',   'NOVA-CTO','tool_call: bash("pnpm test:run") → exit 0'],
+  ['success','NOVA-CTO','Tarea T-047 marcada DONE'],
+  ['info',   'ARIA-MKT','tool_call: send_email(newsletter) → 2341 enviados'],
+  ['warn',   'DEV-α',   'Budget 56% · throttle próximo'],
+  ['info',   'APEX-CEO','Delegando 8 tareas al equipo'],
+  ['success','DEV-β',   'PR #51 creado · 14 archivos modificados'],
+  ['error',  'DEV-α',   'T-051 bloqueada · falta aprobación board'],
+  ['success','APEX-CEO','Estrategia Q2 aprobada'],
+  ['info',   'ANA-DATA','Reporte MRR semanal generado'],
+].forEach(([l,s,m]) => addLog(l,s,m));
+
+// ═══ LIVE TICKS ═══
+setInterval(() => {
+  const pool = [
+    ['info','APEX-CEO','Heartbeat · revisando prioridades'],
+    ['success','DEV-β','Commit realizado · 3 archivos'],
+    ['info','ARIA-MKT','Analizando métricas de campaña'],
+    ['warn','NOVA-CTO','Latencia alta en API externa'],
+    ['success','ANA-DATA','Reporte semanal generado'],
+    ['info','DEV-α','Esperando revisión de código'],
+  ];
+  const [l,s,m] = pool[Math.floor(Math.random()*pool.length)];
+  addLog(l,s,m);
+  if(document.getElementById('view-logs').classList.contains('active')) renderLogs();
+}, 9000);
+
+// ═══ INIT ═══
+runReqCheck();
+</script>
+</body>
+</html>
